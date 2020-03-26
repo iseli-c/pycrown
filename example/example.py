@@ -4,7 +4,7 @@ PyCrown - Fast raster-based individual tree segmentation for LiDAR data
 Copyright: 2018, Jan Zörner
 Licence: GNU GPLv3
 """
-
+import os
 from datetime import datetime
 
 from pycrown import PyCrown
@@ -13,11 +13,12 @@ from pycrown import PyCrown
 if __name__ == '__main__':
 
     TSTART = datetime.now()
-
-    F_CHM = 'data/CHM.tif'
-    F_DTM = 'data/DTM.tif'
-    F_DSM = 'data/DSM.tif'
-    F_LAS = 'data/POINTS.las'
+    
+    data_dir = ""
+    F_CHM = os.path.join(data_dir,'CHM.tif')
+    F_DTM = os.path.join(data_dir'DTM.tif'
+    F_DSM = os.path.join(data_dir,'DSM.tif'
+    F_LAS = os.path.join(data_dir,'POINTS.las'
 
     PC = PyCrown(F_CHM, F_DTM, F_DSM, F_LAS, outpath='result')
 
