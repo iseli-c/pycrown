@@ -453,21 +453,20 @@ class PyCrown:
 
         Parameters
         ----------
-        ws :            int
-                        window size of smoothing filter in metre (set in_pixel=True, otherwise)
-        ws_in_pixels :  bool, optional
-                        sets ws in pixel
-        circular :      bool, optional
-                        set to True for disc-shaped filter kernel, block otherwise
-        '''
-        if not ws_in_pixels:
-            if ws % self.resolution:
-                raise Exception("Image filter size not an integer number. Please check if image resolution matches filter size (in metre or pixel).")
-            else:
-                ws = int(ws / self.resolution)
+        ws :          double
+                      window size of smoothing filter in metres
+        circular :    bool, optional
+                      set to True for disc-shaped filter kernel, block otherwise
+        '''        
 
-        self.chm = self._smooth_raster(self.chm0, ws, self.resolution,
+        filterSize = int(ws / self.resolution)
+
+        if ws>1:
+            self.chm = self._smooth_raster(self.chm0, ws, self.resolution,
                                        circular=circular)
+        else: 
+            print("Median filter size is less than twice the CHM resolution. Median filtering will be skipped")
+            self.chm = self.chm0
         self.chm0[np.isnan(self.chm0)] = 0.
         zmask = (self.chm < 0.5) | np.isnan(self.chm) | (self.chm > 60.)
         self.chm[zmask] = 0
@@ -485,15 +484,13 @@ class PyCrown:
         resolution :    int, optional
                         resolution of raster in m
         ws :            float
-                        moving window size (in metre) to detect the local maxima
+                        moving window size (m) to detect the local maxima
         hmin :          float
                         Minimum height of a tree. Threshold below which a pixel
                         or a point cannot be a local maxima
         return_trees :  bool
                         set to True if detected trees shopuld be returned as
                         ndarray instead of being stored in tree dataframe
-        ws_in_pixels :  bool
-                        sets ws in pixel
 
         Returns
         -------
@@ -506,11 +503,10 @@ class PyCrown:
 
         resolution = resolution if resolution else self.resolution
 
-        if not ws_in_pixels:
-            if ws % resolution:
-                raise Exception("Image filter size not an integer number. Please check if image resolution matches filter size (in metre or pixel).")
-            else:
-                ws = int(ws / resolution)
+        ws = int(ws / resolution)
+
+        if ws<2:
+            raise "Window size must be at least twice the size of the chm resolution ({}m)".format(resolution)
 
         # Maximum filter to find local peaks
         raster_maximum = filters.maximum_filter(
