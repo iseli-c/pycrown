@@ -447,7 +447,7 @@ class PyCrown:
             lons, lats, self.dtm, self.resolution)
 
     def filter_chm(self, ws, ws_in_pixels=False, circular=False):
-       ''' Pre-process the canopy height model (smoothing and outlier removal).
+        ''' Pre-process the canopy height model (smoothing and outlier removal).
         The original CHM (self.chm0) is not overwritten, but a new one is
         stored (self.chm).
         Parameters
@@ -459,6 +459,7 @@ class PyCrown:
         circular :      bool, optional
                         set to True for disc-shaped filter kernel, block otherwise
         '''
+
         if not ws_in_pixels:
             ws = int(ws / self.resolution)       
 
