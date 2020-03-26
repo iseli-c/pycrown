@@ -447,19 +447,20 @@ class PyCrown:
             lons, lats, self.dtm, self.resolution)
 
     def filter_chm(self, ws, ws_in_pixels=False, circular=False):
-        ''' Pre-process the canopy height model (smoothing and outlier removal).
+       ''' Pre-process the canopy height model (smoothing and outlier removal).
         The original CHM (self.chm0) is not overwritten, but a new one is
         stored (self.chm).
-
         Parameters
         ----------
-        ws :          double
-                      window size of smoothing filter in metres
-        circular :    bool, optional
-                      set to True for disc-shaped filter kernel, block otherwise
-        '''        
-
-        filterSize = int(ws / self.resolution)
+        ws :            int
+                        window size of smoothing filter in metre (set in_pixel=True, otherwise)
+        ws_in_pixels :  bool, optional
+                        sets ws in pixel
+        circular :      bool, optional
+                        set to True for disc-shaped filter kernel, block otherwise
+        '''
+        if not ws_in_pixels:
+            ws = int(ws / self.resolution)       
 
         if ws>1:
             self.chm = self._smooth_raster(self.chm0, ws, self.resolution,
@@ -476,7 +477,6 @@ class PyCrown:
         ''' Detect individual trees from CHM raster based on a maximum filter.
         Identified trees are either stores as list in the tree dataframe or
         returned as ndarray.
-
         Parameters
         ----------
         raster :        ndarray
@@ -484,26 +484,29 @@ class PyCrown:
         resolution :    int, optional
                         resolution of raster in m
         ws :            float
-                        moving window size (m) to detect the local maxima
+                        moving window size (in metre) to detect the local maxima
         hmin :          float
                         Minimum height of a tree. Threshold below which a pixel
                         or a point cannot be a local maxima
         return_trees :  bool
                         set to True if detected trees shopuld be returned as
                         ndarray instead of being stored in tree dataframe
-
+        ws_in_pixels :  bool
+                        sets ws in pixel
         Returns
         -------
         ndarray (optional)
             nx2 array of tree top pixel coordinates
         '''
 
+
         if not isinstance(raster, np.ndarray):
             raise Exception("Please provide an input raster as numpy ndarray.")
 
         resolution = resolution if resolution else self.resolution
-
-        ws = int(ws / resolution)
+        
+        if not ws_in_pixels:
+            ws = int(ws / resolution)
 
         if ws<2:
             raise "Window size must be at least twice the size of the chm resolution ({}m)".format(resolution)
